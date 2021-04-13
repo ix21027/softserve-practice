@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Users</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" 
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="  crossorigin="anonymous"></script>
+  </head>
+
+  <body>
+    <form id='user-form'>
+    <p><label>First Name <input type='text' id='fname' ></label></p>
+    <p><label>Last Name <input type='text' id='lname' ></label></p>
+    <p><label>Year Salary <input type='number' id='ysalary' ></label></p>
+    <p>
+      <button data-id="" id="btnForm">Create</button>
+      <button  style="visibility: hidden;" id="btnCancel">Cancel</button>
+    </p>
+  </form>
+  <p>
+    <button id="show-hide-users">Show users</button>
+    
+    <form id="sort-users" style="visibility: hidden;" action='/users' method='get' enctype='application/x-www-form-urlencoded'>
+      <label for="users">Sort users by:</label>
+      
+      <select id="users" name="sort_by">
+        <option selected >Default (by date)</option>
+        <option value="lname_asc">Last Name asc</option>
+        <option value="lname_desc">Last Name desc</option>
+        <option value="ysalary_asc">Year salary asc</option>
+        <option value="ysalary_desc">Year salary desc</option>
+      </select>
+    </form>
+  </p>
+  <table id="loaded-users"></table>
+  </body>  
+  <script>
+    $(document).ready(function() {
+      var idBtn;
+      function td(user) {
+        return `<tr>
+          <td>${user.id}</td>
+          <td>${user.fname}</td>
+          <td>${user.lname}</td> 
+          <td>${user.ysalary}</td> 
+          <td><button class="btnEdit" data-id="${user.id}">edit</button></td>
+          <td><button class="btnDel" data-id="${user.id}">del</button></td>
+        </tr>`
+      }
+      function th() {
+        return `<tr>
+                <th>ID</th> <th>First Name</th> <th>Last Name</th> <th>Year Salary</th>
+              </tr>`
+      }
+      function doneForm() {
+        $.ajax({
+            url: '/users',
+            type: 'GET',
+            success: data => {
+              $('#loaded-users').empty()
+              $('#loaded-users').append(th());
+              data.map(user => $('#loaded-users').append(td(user)))
+            }
+          })
+        $('#fname').val(null)
+        $('#lname').val(null)
+        $('#ysalary').val(null)
+      }
+      $('table').on('click', '.btnDel', function(){
+        if($('#btnForm').text() == "Update") { 
+          alert('first update or cancel')
+          return
+        }
+        let id = $(this).data('id')
+        $(this).parents('tr').remove()
+        $.ajax({url: '/users', data: { id }, type: 'DELETE', dataType: 'JSON'})
+      })
+      $('table').on('click', '.btnEdit', function(){
+        idBtn = $(this).data('id')
+        let fname = $(this).parent().parent().find('td').eq(1).text()
+        let lname = $(this).parent().parent().find('td').eq(2).text()
+        let ysalary = $(this).parent().parent().find('td').eq(3).text()
+        $('#fname').val(fname)
+        $('#lname').val(lname)
+        $('#ysalary').val(ysalary)
+        $('#btnForm').text('Update')
+        $('#btnCancel').css('visibility', 'visible')
+      })
+      $('#btnCancel').click(e => { 
+        e.preventDefault()
+        $('#fname').val(null)
+        $('#lname').val(null)
+        $('#ysalary').val(null)
+        $('#btnCancel').css('visibility', 'hidden')
+        $('#btnForm').text('Create')
+      })
+      $('#btnForm').click(e => { ////Updating\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+        e.preventDefault()
+        if($('#btnForm').text() == "Create") return;
+        if(!($('#fname').val()&&$('#lname').val()&&$('#ysalary').val())) {
+          alert("all fields should be filled")
+          return
+        }
+        if($('#ysalary').val().length > 9){
+          alert("this is too much for year salary, sorry")
+          return
+        }
+        const [fname, lname, ysalary] = [$.trim($('#fname').val()), $.trim($('#lname').val()), $.trim($('#ysalary').val())]
+        $.ajax({
+          method: 'PUT',
+          url: '/users',
+          data: getInputs(idBtn),
+          dataType: 'JSON',
+        }).done(data => {
+          $('#btnCancel').css('visibility', 'hidden')
+          $('#btnForm').text('Create')
+          doneForm()
+        })
+      })
+      
+      function getInputs(id) {
+        const [fname, lname, ysalary] = [$.trim($('#fname').val()), $.trim($('#lname').val()), $.trim($('#ysalary').val())]
+        return { id, fname, lname, ysalary }
+      }
+      $('#sort-users').change(e => {
+        e.preventDefault()
+        let sort_by = $("#users").val()
+        $.ajax({
+          url: '/users',
+          data: { sort_by },
+          type: 'GET',
+          dataType: 'JSON',
+          success: function(data) {
+            $('#loaded-users').empty();
+            $('#loaded-users').append(th());  
+            data.map(user => $('#loaded-users').append(td(user)));
+          }
+        });
+      });
+      $('#btnForm').click(e => { ///Saving\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+        e.preventDefault()
+        if($('#btnForm').text() == "Update") return;
+        if(!($('#fname').val()&&$('#lname').val()&&$('#ysalary').val())) {
+          alert("all fields should be filled")
+          return
+        }
+        if($('#ysalary').val().length > 9){
+          alert("this is too much for year selery, sorry")
+          return
+        }
+        const [fname, lname, ysalary] = [$.trim($('#fname').val()), $.trim($('#lname').val()), $.trim($('#ysalary').val())]
+        $.ajax({
+          url: '/users',
+          type: 'POST',
+          dataType: 'JSON',
+          data: {fname, lname, ysalary}
+        }).done(data => {
+          $('#show-hide-users').text("Hide users")
+          $('#sort-users').css('visibility', 'visible')
+          doneForm()
+        })
+      })
+      
+      $('#show-hide-users').click(e => {
+        if($('#show-hide-users').text() == "Show users"){
+          $.ajax({
+            url: '/users',
+            type: 'GET',
+            success: data => {
+              $('#loaded-users').empty()
+              $('#loaded-users').append(th());
+              data.map(user => $('#loaded-users').append(td(user)))
+            }
+          })
+          $('#show-hide-users').text("Hide users")
+          $('#sort-users').css('visibility', 'visible');
+
+        }
+        else if($('#show-hide-users').text() == "Hide users") {
+          $('#loaded-users').empty()
+          $('#show-hide-users').text("Show users")
+          $('#sort-users').css('visibility', 'hidden');
+        }
+      });
+    });        
+  </script>
+</html>
