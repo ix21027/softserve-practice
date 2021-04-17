@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
   def show
-    pagy, users = pagy(User.sorted(params))
-    render json: {users: users, pagy: pagy}
+    pagy, users = pagy(User.sorted(params), items: 2)
+    render json: {users: users, pagy: pagy_metadata(pagy)}
   end
 
   def create
