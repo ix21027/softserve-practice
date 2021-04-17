@@ -1,18 +1,19 @@
 class UsersController < ApplicationController
   def show
-    render json: User.sorted(params)
+    pagy, users = pagy(User.sorted(params))
+    render json: {users: users, pagy: pagy}
   end
 
   def create
-    User.create!(user_params)
+    render json: {user: User.create!(user_params)}
   end
 
   def update
-    User.find(params[:id]).update!(user_params)
+    render json: User.find(params[:id]).update!(user_params)
   end
 
   def destroy
-    User.find(params[:id]).destroy!
+    render json: User.find(params[:id]).destroy!
   end
 
 private
