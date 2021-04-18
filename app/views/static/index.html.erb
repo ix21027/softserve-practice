@@ -34,7 +34,7 @@
       <a id="prev_url" href="">prev</a>
       &nbsp
       <a id="next_url" href="">next</a>
-      (<span id="page"></span> of <span id="pages"></span>)
+      <span id="pages_map">(<span id="page"></span> of <span id="pages"></span>)</span>
     </form>
   </p>
   <table id="loaded-users"></table>
@@ -52,6 +52,7 @@
         _next = next;
         $('#prev_url').attr("href", _prev)
         $('#next_url').attr("href", _next)
+        pages == 1 ? $("#pages_map").hide() : $("#pages_map").show()
         $('#page').text(page)
         $('#pages').text(pages)
       }
