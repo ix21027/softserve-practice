@@ -1,23 +1,18 @@
 class UsersController < ApplicationController
   def show
-    pagy, users = pagy(User.sorted(params), items: 2)
+    pagy, users = pagy(User.sorted(params), items: 4)
     render json: {users: users, pagy: pagy_metadata(pagy)}
   end
 
-  def create
-    render json: {user: User.create!(user_params)}
+  def resource
+    @user ||= User.find(params[:id])
   end
 
-  def update
-    render json: User.find(params[:id]).update!(user_params)
+  def build_resource
+    @user = User.new resource_params
   end
 
-  def destroy
-    render json: User.find(params[:id]).destroy!
-  end
-
-private
-  def user_params
+  def resource_params
     params.permit(:fname, :lname, :ysalary)
   end
 end

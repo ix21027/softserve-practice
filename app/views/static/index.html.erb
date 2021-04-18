@@ -34,6 +34,7 @@
       <a id="prev_url" href="">prev</a>
       &nbsp
       <a id="next_url" href="">next</a>
+      (<span id="page"></span> of <span id="pages"></span>)
     </form>
   </p>
   <table id="loaded-users"></table>
@@ -51,7 +52,8 @@
         _next = next;
         $('#prev_url').attr("href", _prev)
         $('#next_url').attr("href", _next)
-
+        $('#page').text(page)
+        $('#pages').text(pages)
       }
       function td(user) {
         return `<tr>
@@ -210,7 +212,7 @@
           url: '/users',
           type: 'POST',
           dataType: 'JSON',
-          data: {fname, lname, ysalary,}
+          data: {fname, lname, ysalary}
         }).done(data => {
           $('#show-hide-users').text("Hide users")
           $('#sort-users').css('visibility', 'visible')
