@@ -8,23 +8,10 @@ RSpec.describe "Users", type: :request do
     expect(response.body).to include('"users":')
   end
 
-  # it "POST /users" do
-  #   post "/users"
-
-  #   expect(response.body).to include('')
-  # end
-
-  # it "DELETE /users" do
-  # 	user = User.create fname: "name"
-  #   delete "/users", params: {id: user.id.to_i+99999}
-
-  #   expect(response.body).to include('')
-  # end
-
-  # it "PUT /users" do
-  # 	user = User.create fname: "name"
-  #   put "/users", params: {id: user.id.to_i+99999}
-
-  #   expect(response.body).to include('')
+  it "DELETE /users with not found status" do
+    not_existed_user_id = -1
+    delete "/users/#{not_existed_user_id}"
+    expect(response.status).to eq(404)
   end
+
 end

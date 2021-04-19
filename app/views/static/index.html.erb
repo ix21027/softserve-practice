@@ -93,7 +93,7 @@
         }
         let id = $(this).data('id')
         $(this).parents('tr').remove()
-        $.ajax({url: '/users', data: { id }, type: 'DELETE', dataType: 'JSON'})
+        $.ajax({url: `/users/${id}`, data: { id }, type: 'DELETE', dataType: 'JSON'})
         doneForm()
       })
       $('#next_url',).click(e => { 
@@ -165,7 +165,7 @@
         const [fname, lname, ysalary] = [$.trim($('#fname').val()), $.trim($('#lname').val()), $.trim($('#ysalary').val())]
         $.ajax({
           method: 'PUT',
-          url: '/users',
+          url: `/users/${idBtn}`,
           data: getInputs(idBtn),
           dataType: 'JSON',
         }).done(data => {

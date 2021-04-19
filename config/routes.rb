@@ -1,4 +1,4 @@
 Rails.application.routes.draw do
   root "static#index"
-  resource :users
+  resources :users
 end
