@@ -1,48 +1,12 @@
-stages:
-  - build
-  - test
-
-.build:
+default:
   image: ruby:3.0.1
-  cache:
-    key: rat-app-name
-    paths:
-      - apt-cache/
-      - vendor/ruby
-      - node_modules/
-    policy: pull
-  before_script:
-    - gem install bundler --no-document
-    - bundle install --jobs $(nproc) "${FLAGS[@]}" --path=vendor
 
-.db:
-  extends: .build
   services:
     - postgres:12.6
-  variables:
-    POSTGRES_USER: ssproj
-    POSTGRES_PASSWORD: ssproj
-    DB_USERNAME: ssproj
-    DB_PASSWORD: ssproj
-    DB_HOST: postgres
-    RAILS_ENV: test
-    DISABLE_SPRING: 1
-    BUNDLE_PATH: vendor/bundle
-  before_script:
-    - export APT_CACHE_DIR=`pwd`/apt-cache && mkdir -pv $APT_CACHE_DIR
-    - apt update -qq && apt -o dir::cache::archives="$APT_CACHE_DIR" install -yqq nodejs
-    - gem install bundler --no-document
-    - bundle install --jobs $(nproc) "${FLAGS[@]}" --path=vendor
-    - bundle exec rails db:create db:schema:load --trace
 
-rspec:
-  extends: .db
-  stage: test
-  cache:
-    policy: pull-push
-  artifacts:
-    name: coverage
-    paths:
-      - coverage/
+  before_script:
+    - bundle install
+
+test:
   script:
-    - bundle exec rspec --profile 10 --format progress
+    - bundle exec rake spec
