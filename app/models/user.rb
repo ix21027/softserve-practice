@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  validates :lname, :fname, :ysalary, presence: true
+  validates :lname, :fname, uniqueness: true
   
   def self.sorted(params)
     case params[:sort_by]
@@ -14,4 +16,5 @@ class User < ApplicationRecord
       order id: :desc
     end
   end
+
 end
