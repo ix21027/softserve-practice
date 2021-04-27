@@ -18,29 +18,21 @@ paths:
       tags:
       - user
       summary: Get all users
-      description: Returns a json with all users (optionally sorted and ordered, default - sorted by salary descending)
+      description: Returns a json with all users (optionally sorted and ordered, default - sorted by id descending)
       operationId: getUsers
       produces:
       - application/json
       parameters:
       - name: sort_by
         in: query
-        description: sort method (by id, first name, last name, salary)
+        description: sort method (asc, desc by last name, and salary)
         required: false
         type: string
         enum:
-        - id
-        - fname
-        - lname
-        - ysalary
-      - name: order
-        in: query
-        description: order method (ascending, descending)
-        required: false
-        type: string
-        enum:
-        - ASC
-        - DESC
+        - lname_desc
+        - lname_asc
+        - ysalary_desc
+        - ysalary_asc
       responses:
         "200":
           description: successful operation
@@ -51,8 +43,8 @@ paths:
     post:
       tags:
       - user
-      summary: Add user
-      operationId: addUser
+      summary: Create new user
+      operationId: createUser
       consumes:
       - application/json
       produces:
@@ -60,24 +52,20 @@ paths:
       parameters:
       - in: body
         name: userId
-        description: User object to be added
+        description: User object to be created
         required: true
         schema:
           $ref: '#/definitions/User'
       responses:
-        "201":
-          description: successful operation
-          schema:
-            $ref: '#/definitions/User'
-        "409":
-          description: ID already exists
-        "405":
-          description: Invalid input
+        "422":
+          description: Unprocessable entity
+        "404":
+          description: Not found
   /users/{userId}:
     get:
       tags:
       - user
-      summary: Find user by ID
+      summary: Find a user
       description: Returns a single user
       operationId: getUserById
       produces:
@@ -90,19 +78,15 @@ paths:
         type: integer
         format: int64
       responses:
-        "200":
-          description: successful operation
-          schema:
-            $ref: '#/definitions/User'
-        "400":
-          description: Invalid ID supplied
+        "422":
+          description: Unprocessable entity
         "404":
-          description: User not found
-    patch:
+          description: Not found
+    put:
       tags:
       - user
-      summary: Add user
-      operationId: patchUser
+      summary: Update a user
+      operationId: putUser
       consumes:
       - application/json
       produces:
@@ -110,49 +94,53 @@ paths:
       parameters:
       - name: userId
         in: path
-        description: User object to be added
+        description: User object to be updated
         required: true
         type: integer
         format: int64
       - in: body
         name: user
-        description: User object to be added
+        description: User object to be updated
         required: true
         schema:
           $ref: '#/definitions/user'
       responses:
-        "201":
-          description: successful operation
-          schema:
-            $ref: '#/definitions/User'
-        "409":
-          description: ID already exists
-        "405":
-          description: Invalid input
+        "422":
+          description: Unprocessable entity
+        "404":
+          description: Not found
+    delete:
+      tags:
+      - user
+      summary: Delete a user
+      operationId: deleteUser
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: userId
+        in: path
+        description: User object to be deleted
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "422":
+          description: Unprocessable entity
+        "404":
+          description: Not found
 definitions:
   User:
     type: object
     required:
-    - fname
     - id
+    - fname
     - lname
     - ysalary
     properties:
       id:
         type: integer
-      fname:
-        type: string
-      lname:
-        type: string
-      ysalary:
-        type: integer
-  usersuserId_user:
-    type: object
-    required:
-    - fname
-    - lname
-    - ysalary
-    properties:
       fname:
         type: string
       lname:
@@ -165,4 +153,4 @@ definitions:
     - user
     properties:
       user:
-        $ref: '#/definitions/usersuserId_user'
+        $ref: '#/definitions/User'

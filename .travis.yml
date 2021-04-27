@@ -1,0 +1,21 @@
+language: ruby
+
+sudo: false
+cache: bundler
+
+rvm:
+  - 3.0.1
+  - ruby-head
+
+matrix:
+  allow_failures:
+    - rvm: ruby-head
+
+before_script:
+  - psql -c 'drop database if exists ssproj_test' -U postgres
+  - psql -c 'create database ssproj_test' -U postgres
+  - gem install bundler --no-document
+
+script:
+  - RAILS_ENV=test bundle exec rails db:migrate
+  - bundle exec rake spec
